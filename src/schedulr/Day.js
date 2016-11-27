@@ -1,9 +1,12 @@
 function Day(time){
 	this.events = [];
 	this.name = 'TODO : implement date name';
-	console.log('parse date!!!');
-	this.time = Date.now();
+	this.time = time;
 };
+
+Day.prototype.addEvent = function(event){
+	this.events.push(event);
+}
 
 module.exports = Day;
 // class Day

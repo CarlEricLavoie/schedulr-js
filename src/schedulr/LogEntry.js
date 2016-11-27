@@ -1,18 +1,31 @@
-function LogEntry(date, cmd, args){
+function LogEntry(date, cmd, args) {
 	this.cmd = cmd;
 	this.date = date;
 	this.args = args;
 };
 
 
-LogEntry.prototype.toLog = ()=>`{{${this.date}}}{{${this.cmd}}}{{${this.args}}}`;
+LogEntry.prototype.toLog = function () {
+	return JSON.stringify({
+		date: this.date,
+		cmd: this.cmd,
+		args: this.args
+	});
+};
+LogEntry.exec = function (event) {
+	if (typeof this[event.cmd] === 'function') {
+		// console.log(`ran command ${event.cmd} with args ${JSON.stringify(event.args)} from log`);
+		var _dateNow = Date.now;
+		Date.now = () => event.date;
+		this[event.cmd].apply(this, event.args);
+		Date.now = _dateNow;
+		// this[event.cmd].apply(this, event.args);
+	}
+};
 
-LogEntry.from = function(line){
-	var data = line.match(/\{\{(.*?)\}\}+/);
-	var date = Date.parse(data[0]);
-	var cmd = data[1];
-	var args = data[2];
-	return new LogEntry(date, cmd, args);
+LogEntry.from = function (line) {
+	var logEntry = JSON.parse(line);
+	return new LogEntry(logEntry.date, logEntry.cmd, logEntry.args);
 };
 
 module.exports = LogEntry;
