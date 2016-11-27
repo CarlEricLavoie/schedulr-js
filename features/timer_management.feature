@@ -6,12 +6,20 @@ Feature: Schedulr allows to properly manage timer
   Background:
     Given Schedulr is initialized
 
-  Scenario: Start the timer
+  Scenario: Start the timer without having a current activity
     When I start the timer
+    Then The timer should not be running
+
+  Scenario: Start the timer
+    When I add an activity called "test-activity"
+    And I set current activity as "test-activity"
+    And I start the timer
     Then The timer should be running
 
   Scenario: Start the timer twice
-    When I start the timer
+    When I add an activity called "test-activity"
+    And I set current activity as "test-activity"
+    And I start the timer
     And I start the timer
     Then The timer should be running
 

@@ -2,11 +2,18 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var router = express.Router();
+var params = require('./server_params');
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 var Schedulr = require('../schedulr/Schedulr');
-var schedulr = new Schedulr();
+var schedulr = new Schedulr().load();
+
+app.put('/initialize', function(req, res){
+	schedulr.delete();
+	res.json(schedulr = new Schedulr());
+});
 
 app.get('/activity/:name', function (req, res) {
 	res.json(schedulr.get(req.params.name));
@@ -26,6 +33,7 @@ app.delete('/activity/:name', function(req, res){
 });
 
 app.post('/activity', function(req, res){
+	console.log('called post activity with name ' + req.body.name);
 	res.json(schedulr.add(req.body.name));
 });
 
@@ -45,6 +53,17 @@ app.put('/timer', function(req, res){
 	}
 });
 
-app.listen(3000, function () {
+app.get('/timer', function(req, res){
+	res.json(schedulr.timerRunning);
+});
+
+app.get('/day/:offset', function(req, res){
+	res.json(schedulr.day(req.params.offset));
+});
+app.get('/day', function(req, res){
+	res.json(schedulr.day());
+});
+
+app.listen(params.port, function () {
 	console.log('Example app listening on port 3000!')
 });
