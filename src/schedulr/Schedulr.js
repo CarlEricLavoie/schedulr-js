@@ -29,7 +29,6 @@ Schedulr.prototype.load = function (name) {
 			});
 
 			lineReader.on('line', function (line) {
-				// console.log(`loading line : ${line}`);
 				LogEntry.exec.call(this, LogEntry.from(line));
 			}.bind(self));
 		}
@@ -174,22 +173,29 @@ Schedulr.prototype.set = function(activityName){
  */
 Schedulr.prototype.day = function(offset){
 	offset=offset?parseInt(offset):0;
-	this.stop(false);
-	var today = new Date();
-	today.setDate(today.getDate() + offset);
+	this.computeTime(false);
+	var today = new Date(Date.now());
+	today.setDate(today.getDate() - offset);
 	return this.calendar.getDay(today.valueOf());
 };
 
 /**
  * Used to compute the time to create events and add them to the proper day.
+ * shouldPersist is used to computeTime without persisting that computation such as when computing the current event when displaying daily schedule.
+ * @param shouldPersist
  */
-Schedulr.prototype.computeTime = function(){
-	if(this.currentActivity){
-		// console.log(`computing time from event at time .... ${new Date(Date.now())}`);
-
+Schedulr.prototype.computeTime = function(shouldPersist){
+	shouldPersist = shouldPersist===false?false:true;
+	if(this.currentActivity) {
 		this.calendar.addEvent(this.latestTimestamp, Date.now(), this.currentActivity);
 	}
-	this.latestTimestamp = Date.now();
+	if(!shouldPersist){
+		setTimeout(function(){
+			this.calendar.removeEvent(this.latestTimestamp, Date.now(), this.currentActivity);
+		}.bind(this),0);
+	}else{
+		this.latestTimestamp = Date.now();
+	}
 };
 
 //List of functions that need to be persisted.
