@@ -173,30 +173,32 @@ Schedulr.prototype.set = function(activityName){
  */
 Schedulr.prototype.day = function(offset){
 	offset=offset?parseInt(offset):0;
-	this.computeTime(false);
+	var tempCalendar = this.computeTimeTemporarly();
 	var today = new Date(Date.now());
+	//Todo : offset as timestamp
 	today.setDate(today.getDate() - offset);
-	return this.calendar.getDay(today.valueOf());
+	return tempCalendar.getDay(today.valueOf());
 };
 
 /**
  * Used to compute the time to create events and add them to the proper day.
- * shouldPersist is used to computeTime without persisting that computation such as when computing the current event when displaying daily schedule.
- * @param shouldPersist
  */
-Schedulr.prototype.computeTime = function(shouldPersist){
-	shouldPersist = shouldPersist===false?false:true;
-	if(this.currentActivity) {
-		this.calendar.addEvent(this.latestTimestamp, Date.now(), this.currentActivity);
-	}
-	if(!shouldPersist){
-		setTimeout(function(){
-			this.calendar.removeEvent(this.latestTimestamp, Date.now(), this.currentActivity);
-		}.bind(this),0);
-	}else{
+Schedulr.prototype.computeTime = function(){
+	if(!this.latestTimestamp){
 		this.latestTimestamp = Date.now();
 	}
+	this.calendar.addEvent(this.latestTimestamp, Date.now(), this.currentActivity);
+	this.latestTimestamp = Date.now();
 };
+
+/**
+ * Used to compute time without actually updating the calendar, such as when displaying daily schedule.
+ */
+Schedulr.prototype.computeTimeTemporarly = function () {
+	var tempCalendar = this.calendar.copy();
+	tempCalendar.addEvent(this.latestTimestamp, Date.now(), this.currentActivity);
+	return tempCalendar;
+}
 
 //List of functions that need to be persisted.
 Schedulr.addPersistenceFunctions(['add', 'start', 'stop', 'remove', 'rename', 'set']);

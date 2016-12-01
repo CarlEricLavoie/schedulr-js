@@ -4,6 +4,10 @@ function Event(startTime, endTime, activity){
 	this.activity = activity;
 };
 
+Event.prototype.copy = function(){
+	return new Event(this.startTime, this.endTime, this.activity);
+};
+
 Event.from = function(startTime, endTime, activity){
 	if(typeof startTime !== 'number' || typeof endTime !== 'number'){
 		return;
