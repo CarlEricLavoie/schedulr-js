@@ -27,4 +27,23 @@ Feature: Schedulr allows to properly manage and display the schedule for a day
     And the activity in position 0 in the daily schedule should have 9 hours spent
     And the daily schedule from 1 day ago should have 1 activity
     # For demo purpose. to show complexity
-    #And the activity in position 0 in the daily schedule from 1 day ago should have 14 hours spent
+    And the activity in position 0 in the daily schedule from 1 day ago should have 14 hours spent
+
+  Scenario: Multiple activities in a day with only one active
+    When I add an activity called "test-activity"
+    And I add an activity called "test-activity2"
+    And I set current activity as "test-activity"
+    And I wait for 3 hours
+    Then the daily schedule should have 1 activities
+    And the activity in position 0 in the daily schedule should have 3 hours spent
+
+  Scenario: Multiple activities in a day with 2 actives
+    When I add an activity called "test-activity"
+    And I add an activity called "test-activity2"
+    And I set current activity as "test-activity"
+    And I wait for 3 hours
+    And I set current activity as "test-activity2"
+    And I wait for 2 hours
+    Then the daily schedule should have 2 activities
+    And the activity in position 0 in the daily schedule should have 3 hours spent
+    And the activity in position 1 in the daily schedule should have 2 hours spent
