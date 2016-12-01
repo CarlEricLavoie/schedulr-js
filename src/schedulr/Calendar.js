@@ -6,7 +6,6 @@ function Calendar(){
 
 }
 Calendar.prototype.getDay = function(time){
-	// console.log("days :: " + sJSON.stringify(this.days));
 	return this.days.find(day => new Date(day.time).toDateString() === new Date(time).toDateString());
 };
 
@@ -19,6 +18,14 @@ Calendar.prototype.addEvent = function(startTime, endTime, activity){
 			this.days.push(day)
 		}
 		day.addEvent(event);
+	})
+};
+
+Calendar.prototype.removeEvent = function(startTime, endTime, activity){
+	events = Event.from(startTime, endTime, activity);
+	events.map((event)=>{
+		var day = this.getDay(event.startTime);
+		day.removeEvent(event);
 	})
 };
 

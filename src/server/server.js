@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var router = express.Router();
 var params = require('./server_params');
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -11,7 +10,6 @@ var Schedulr = require('../schedulr/Schedulr');
 var schedulr = new Schedulr().load();
 
 app.put('/initialize', function(req, res){
-	schedulr.delete();
 	res.json(schedulr = new Schedulr());
 });
 
@@ -33,7 +31,6 @@ app.delete('/activity/:name', function(req, res){
 });
 
 app.post('/activity', function(req, res){
-	console.log('called post activity with name ' + req.body.name);
 	res.json(schedulr.add(req.body.name));
 });
 
@@ -64,6 +61,21 @@ app.get('/day', function(req, res){
 	res.json(schedulr.day());
 });
 
+if(app.get('env') === 'development'){
+	app.put('/mock/time', function(req, res){
+		var timestamp = req.body.timestamp;
+		Date._now = Date.now;
+		Date.now = () => timestamp;
+		res.json(new Date(Date.now()));
+	})
+
+	app.delete('/mock/time', function(req, res){
+		Date.now = Date._now;
+		res.json();
+	})
+}
+
 app.listen(params.port, function () {
 	console.log('Example app listening on port 3000!')
 });
+

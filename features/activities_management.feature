@@ -37,3 +37,8 @@ Feature: Schedulr allows to properly manage activities
     When I add an activity called "test-activity"
     And I set current activity as "test-activity"
     Then The current activity should be named "test-activity"
+
+  Scenario: I add 2 activities
+    When I add an activity called "test-activity"
+    And I add an activity called "test-activity2"
+    Then Schedulr should have 2 activities

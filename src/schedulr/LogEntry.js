@@ -14,7 +14,6 @@ LogEntry.prototype.toLog = function () {
 };
 LogEntry.exec = function (event) {
 	if (typeof this[event.cmd] === 'function') {
-		// console.log(`ran command ${event.cmd} with args ${JSON.stringify(event.args)} from log`);
 		var _dateNow = Date.now;
 		Date.now = () => event.date;
 		this[event.cmd].apply(this, event.args);

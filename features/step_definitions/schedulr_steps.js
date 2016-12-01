@@ -10,11 +10,19 @@ module.exports = function () {
 		request.put({
 			url: `${baseUrl}/initialize`
 		}, ()=>callback());
-		// this.schedulr = new Schedulr;
 	});
 
-	this.Given(/^Schedulr\-server is running$/, function (callback) {
+	this.Given(/^current time of day is (\d+):(\d+)$/, function (hours, minutes, callback) {
+		var now = new Date();
+		now.setHours(hours, minutes, 0,0);
+		var lockedDate = now.valueOf();
+		Date.now = () => lockedDate;
+		request.put({
+			url: `${baseUrl}/mock/time`,
+			json: {timestamp: Date.now()}
+		}, ()=>callback());
 	});
+
 
 	this.When(/^I add an activity called "([^"]*)"$/, function (activityName, callback) {
 		request.post({
@@ -39,21 +47,26 @@ module.exports = function () {
 		request.delete({
 			url: `${baseUrl}/activity/${activityName}`
 		}, ()=> callback());
-		// this.schedulr.remove(activityName);
 	});
 
+	this.When(/^I wait for (\d+) minutes$/, function (minutes, callback) {
+		request.put({
+			url: `${baseUrl}/mock/time`,
+			json: {timestamp: Date.now() + 1000 * 60 * minutes}
+		}, ()=>callback());
+
+		//exit call stack before setting the Date.now again
+		// setTimeout(function(){
+		// 	Date.now = _dateNow;
+		// },0)
+	});
+
+
 	this.When(/^I (stop|start) the timer$/, function (functionName, callback) {
-		if (functionName === 'stop') {
-			request.put({
-				url: `${baseUrl}/timer`,
-				json : { running : false }
-			}, ()=>callback());
-		} else {
-			request.put({
-				url: `${baseUrl}/timer`,
-				json : { running : true }
-			}, ()=>callback());
-		}
+		request.put({
+			url: `${baseUrl}/timer`,
+			json: {running: functionName === 'start'}
+		}, ()=>callback());
 	});
 
 	this.When(/^I set current activity as "([^"]*)"$/, function (activityName, callback) {
@@ -68,13 +81,22 @@ module.exports = function () {
 			url: `${baseUrl}/activity/${activityName}`,
 			json: true
 		}, function (e, r, activity) {
-			// console.log(` mqwenqkjne jkwqnjk enkjqwn ${body}`);
 			assert(typeof activity === 'object', `activity not found ${activity}`);
 			assert.equal(activity.name, activityName, `activity has wrong name ${activity.name}`);
 			callback();
 		});
-		// var activity = this.schedulr.get(activityName);
 
+	});
+
+	this.Then(/^the daily schedule activity (\d+) should have (\d+) minutes spent$/, function (activityId, minutes, callback) {
+		request.get({
+			url: `${baseUrl}/day`,
+			json: true
+		}, function (e, r, schedule) {
+			assert(schedule.events[activityId]);
+			assert.equal(schedule.events[activityId].endTime - schedule.events[activityId].startTime, 1000 * 60 * minutes);
+			callback();
+		});
 	});
 
 	this.Then(/^The timer should (not )?be running$/, function (not, callback) {
@@ -82,17 +104,30 @@ module.exports = function () {
 		request.get({
 			url: `${baseUrl}/timer`,
 			json: true
-		}, function(e,r,timer){
+		}, function (e, r, timer) {
 			assert.equal(timer, not);
 			callback();
 		})
 	});
 
+	this.Then(/^the daily schedule(?: from (\d+) day ago)? should have (\d+) activity$/, function (offset, activityCount, callback) {
+		request.get({
+			url: `${baseUrl}/day/${offset || 0}`,
+			json: true
+		}, function (e, r, schedule) {
+			if(schedule.events.length != activityCount){
+				console.log(JSON.stringify(schedule.events));
+			}
+			assert.equal(schedule.events.length, activityCount);
+			callback();
+		});
+	});
+
 	this.Then(/^The current activity should be named "([^"]*)"$/, function (activityName, callback) {
 		request.get({
-			url : `${baseUrl}/current`,
+			url: `${baseUrl}/current`,
 			json: true
-		}, function(e,r,activity){
+		}, function (e, r, activity) {
 			assert(activity, 'no activity currently defined');
 			assert.equal(activity.name, activityName, `current activity is name ${activity.name} expected ${activityName}`);
 			callback();
