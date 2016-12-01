@@ -61,13 +61,19 @@ app.get('/day', function(req, res){
 	res.json(schedulr.day());
 });
 
+
 if(app.get('env') === 'development'){
 	app.put('/mock/time', function(req, res){
 		var timestamp = req.body.timestamp;
 		Date._now = Date.now;
 		Date.now = () => timestamp;
 		res.json(new Date(Date.now()));
-	})
+	});
+
+	//A bit too brutal. Will be kept only in dev mode for now
+	app.delete('/', function(req, res){
+		res.json(schedulr.cleanAll());
+	});
 
 	app.delete('/mock/time', function(req, res){
 		Date.now = Date._now;

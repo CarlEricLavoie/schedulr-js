@@ -167,6 +167,11 @@ Schedulr.prototype.set = function(activityName){
 	this.currentActivity = this.get(activityName);
 };
 
+Schedulr.prototype.cleanAll = function(){
+	fs.unlink(this.instanceName, ()=>{});
+}
+
+
 /**
  * Returns all activities for current day. The offset is a number of day by which the search will be offset.
  * @param offset
