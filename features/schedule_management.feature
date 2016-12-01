@@ -13,12 +13,18 @@ Feature: Schedulr allows to properly manage and display the schedule for a day
     And I start the timer
     And I wait for 30 minutes
     Then the daily schedule should have 1 activity
-    And the daily schedule activity 0 should have 30 minutes spent
+    And the activity in position 0 in the daily schedule should have 30 minutes spent
+    And the activity in position 0 in the daily schedule should have 30 minutes spent
 
   Scenario: Activity spanning over multiple days
     When I add an activity called "test-activity"
     And I set current activity as "test-activity"
     And I start the timer
     And I wait for 1440 minutes
+    Then the daily schedule should have 1 activity
     Then the daily schedule from 0 day ago should have 1 activity
+    And the activity in position 0 in the daily schedule should have 540 minutes spent
+    And the activity in position 0 in the daily schedule should have 9 hours spent
     And the daily schedule from 1 day ago should have 1 activity
+    # For demo purpose. to show complexity
+    #And the activity in position 0 in the daily schedule from 1 day ago should have 14 hours spent

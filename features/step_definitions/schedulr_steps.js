@@ -5,6 +5,12 @@ var request = require('request');
 var params = require('../../src/server/server_params');
 var baseUrl = `http://${params.hostname}:${params.port}`;
 
+var TIME_UNIT_CONVERSION_TO_MILLISECOND = {
+	HOURS : 60 * 60 * 1000,
+	MINUTES : 60 * 1000,
+	SECONDS : 1000
+}
+
 module.exports = function () {
 	this.Given(/^Schedulr is initialized$/, function (callback) {
 		request.put({
@@ -52,7 +58,7 @@ module.exports = function () {
 	this.When(/^I wait for (\d+) minutes$/, function (minutes, callback) {
 		request.put({
 			url: `${baseUrl}/mock/time`,
-			json: {timestamp: Date.now() + 1000 * 60 * minutes}
+			json: {timestamp: Date.now() + TIME_UNIT_CONVERSION_TO_MILLISECOND.MINUTES * minutes}
 		}, ()=>callback());
 
 		//exit call stack before setting the Date.now again
@@ -88,13 +94,13 @@ module.exports = function () {
 
 	});
 
-	this.Then(/^the daily schedule activity (\d+) should have (\d+) minutes spent$/, function (activityId, minutes, callback) {
+	this.Then(/^the activity in position (\d+) in the daily schedule(?: from (\d+) day ago)? should have (\d+) (minutes|hours) spent$/, function (activityId, offset, multiplier, timeUnit, callback) {
 		request.get({
-			url: `${baseUrl}/day`,
+			url: `${baseUrl}/day/${offset || 0}`,
 			json: true
 		}, function (e, r, schedule) {
 			assert(schedule.events[activityId]);
-			assert.equal(schedule.events[activityId].endTime - schedule.events[activityId].startTime, 1000 * 60 * minutes);
+			assert.equal(schedule.events[activityId].endTime - schedule.events[activityId].startTime, TIME_UNIT_CONVERSION_TO_MILLISECOND[timeUnit.toUpperCase()] * multiplier);
 			callback();
 		});
 	});
