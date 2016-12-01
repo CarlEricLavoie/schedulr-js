@@ -167,9 +167,12 @@ Schedulr.prototype.set = function(activityName){
 	this.currentActivity = this.get(activityName);
 };
 
+/**
+ * Deletes the persisted data
+ */
 Schedulr.prototype.cleanAll = function(){
 	fs.unlink(this.instanceName, ()=>{});
-}
+};
 
 
 /**

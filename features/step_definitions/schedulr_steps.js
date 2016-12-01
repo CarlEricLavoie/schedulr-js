@@ -55,10 +55,12 @@ module.exports = function () {
 		}, ()=> callback());
 	});
 
-	this.When(/^I wait for (\d+) minutes$/, function (minutes, callback) {
+	this.When(/^I wait for (\d+) (minutes|hours)$/, function (multiplier, timeUnit, callback) {
+		var lockedTime = Date.now() + TIME_UNIT_CONVERSION_TO_MILLISECOND[timeUnit.toUpperCase()] * multiplier;
+		Date.now = ()=>lockedTime;
 		request.put({
 			url: `${baseUrl}/mock/time`,
-			json: {timestamp: Date.now() + TIME_UNIT_CONVERSION_TO_MILLISECOND.MINUTES * minutes}
+			json: {timestamp: Date.now()}
 		}, ()=>callback());
 
 		//exit call stack before setting the Date.now again
@@ -116,14 +118,11 @@ module.exports = function () {
 		})
 	});
 
-	this.Then(/^the daily schedule(?: from (\d+) day ago)? should have (\d+) activity$/, function (offset, activityCount, callback) {
+	this.Then(/^the daily schedule(?: from (\d+) day ago)? should have (\d+) activit(?:y|ies)$/, function (offset, activityCount, callback) {
 		request.get({
 			url: `${baseUrl}/day/${offset || 0}`,
 			json: true
 		}, function (e, r, schedule) {
-			if(schedule.events.length != activityCount){
-				console.log(JSON.stringify(schedule.events));
-			}
 			assert.equal(schedule.events.length, activityCount);
 			callback();
 		});
