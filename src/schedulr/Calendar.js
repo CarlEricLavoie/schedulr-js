@@ -31,7 +31,7 @@ Calendar.prototype.addEvent = function (startTime, endTime, activity) {
  */
 Calendar.prototype.copy = function () {
 	var copy = new Calendar();
-	copy.days = this.days.map(Day.prototype.copy);
+	copy.days = this.days.map(x => x.copy());
 	return copy;
 };
 

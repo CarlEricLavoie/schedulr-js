@@ -5,6 +5,7 @@ function Event(startTime, endTime, activity){
 };
 
 Event.prototype.copy = function(){
+	// console.log(` Event  : ${JSON.stringify(this)}`);
 	return new Event(this.startTime, this.endTime, this.activity);
 };
 
