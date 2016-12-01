@@ -62,11 +62,6 @@ module.exports = function () {
 			url: `${baseUrl}/mock/time`,
 			json: {timestamp: Date.now()}
 		}, ()=>callback());
-
-		//exit call stack before setting the Date.now again
-		// setTimeout(function(){
-		// 	Date.now = _dateNow;
-		// },0)
 	});
 
 
