@@ -82,6 +82,6 @@ if(app.get('env') === 'development'){
 }
 
 app.listen(params.port, function () {
-	console.log('Example app listening on port 3000!')
+	console.log(`Server listening on port : ${params.port}`)
 });
 
